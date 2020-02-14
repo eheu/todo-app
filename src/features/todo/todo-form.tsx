@@ -4,15 +4,18 @@ import { reducer, emptyState, actionCreators, entities, selectors } from "./todo
 
 
 const TodoForm = () => {
+  let [id, setId] = useState(0);
   const [todosVisible, setTodosVisible] = useState(false)
   const [state, dispatch] = useReducer(reducer, emptyState);
   const { add } = actionCreators;
   const { todo } = entities;
 
   const addtodo = (values: any) => {
-    dispatch(add(todo, values));
+    dispatch(add(todo, id.toString(), values));
     console.log(state);
     console.log(getTodos())
+    setId(id + 1);
+    console.log(id);
   };
 
   type Todo = {
