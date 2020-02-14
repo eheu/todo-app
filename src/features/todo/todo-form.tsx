@@ -8,6 +8,11 @@ import {
   selectors
 } from "./todo-schema";
 
+type Todo = {
+  todoId: string;
+  text: string;
+};
+
 const TodoForm = () => {
   let [id, setId] = useState(0);
   const [todosVisible, setTodosVisible] = useState(true);
@@ -15,31 +20,16 @@ const TodoForm = () => {
   const { add } = actionCreators;
   const { todo } = entities;
 
-  const addtodo = (values: any) => {
+  const addTodo = (values: any) => {
     dispatch(add(todo, id.toString(), values));
     setId(id + 1);
   };
 
-  type Todo = {
-    todoId: string;
-    text: string;
-  };
-
-  const getTodos = () => {
-    const rec = selectors.getResources(state, { entity: todo }) as Record<
-      string,
-      Todo
-    >;
-    const todos = [];
-    for (let todo in rec) {
-      todos.push(rec[todo] as Todo);
-    }
-    return todos;
-  };
+  const ids = selectors.getIds(state, { entity: todo });
 
   return (
     <Form
-      onSubmit={addtodo}
+      onSubmit={addTodo}
       render={({ handleSubmit }) => (
         <>
           <form onSubmit={handleSubmit}>
@@ -47,9 +37,10 @@ const TodoForm = () => {
             <Field name="text" component="input"></Field>
             <button type="submit">Add</button>
           </form>
-          {getTodos().map(todo => (
-            <p key={todo.todoId}>{todo.todoId + " " + todo.text}</p>
-          ))}
+          {ids.map(id => {
+            const item = selectors.getResource(state, { entity: todo, id }) as Todo;
+            return <p key={item.todoId}>{item.todoId + " " + item.text}</p>
+          })}
         </>
       )}
     />
