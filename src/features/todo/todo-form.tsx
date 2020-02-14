@@ -1,34 +1,41 @@
 import { Form, Field } from "react-final-form";
 import React, { useReducer, useState } from "react";
-import { reducer, emptyState, actionCreators, entities, selectors } from "./todo-schema";
-
+import {
+  reducer,
+  emptyState,
+  actionCreators,
+  entities,
+  selectors
+} from "./todo-schema";
 
 const TodoForm = () => {
   let [id, setId] = useState(0);
-  const [todosVisible, setTodosVisible] = useState(false)
+  const [todosVisible, setTodosVisible] = useState(true);
   const [state, dispatch] = useReducer(reducer, emptyState);
   const { add } = actionCreators;
   const { todo } = entities;
 
   const addtodo = (values: any) => {
     dispatch(add(todo, id.toString(), values));
-    console.log(state);
-    console.log(getTodos())
     setId(id + 1);
-    console.log(id);
   };
 
   type Todo = {
     todoId: string;
-  }
+    text: string;
+  };
 
   const getTodos = () => {
-    return selectors.getResources(state, {entity: todo}) as Record<string, Todo>;
-  }
-
-  const showTodos = () => {
-    setTodosVisible(true);
-  }
+    const rec = selectors.getResources(state, { entity: todo }) as Record<
+      string,
+      Todo
+    >;
+    const todos = [];
+    for (let todo in rec) {
+      todos.push(rec[todo] as Todo);
+    }
+    return todos;
+  };
 
   return (
     <Form
@@ -40,10 +47,9 @@ const TodoForm = () => {
             <Field name="text" component="input"></Field>
             <button type="submit">Add</button>
           </form>
-          <button onSubmit={showTodos} type="submit">
-            Show
-          </button>
-          {todosVisible && <div>{getTodos()}</div>}
+          {getTodos().map(todo => (
+            <p key={todo.todoId}>{todo.todoId + " " + todo.text}</p>
+          ))}
         </>
       )}
     />
